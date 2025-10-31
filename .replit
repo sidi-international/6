@@ -1,0 +1,9 @@
+run = "python app.py"
+language = "python3"
+
+[nix]
+channel = "stable-22_11"
+
+[deployment]
+run = ["gunicorn", "app:app", "--bind", "0.0.0.0:5000"]
+deploymentTarget = "cloudrun"
