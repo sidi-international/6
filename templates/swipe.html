@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HandTinder - Swipe</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 0;
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .navbar-brand {
+            font-weight: bold;
+            color: #667eea !important;
+            font-size: 1.5rem;
+        }
+
+        .swipe-container {
+            max-width: 500px;
+            margin: 30px auto;
+            padding: 20px;
+        }
+
+        .card-stack {
+            position: relative;
+            width: 100%;
+            height: 600px;
+        }
+
+        .swipe-card {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            cursor: grab;
+            transition: transform 0.3s ease;
+        }
+
+        .swipe-card:active {
+            cursor: grabbing;
+        }
+
+        .swipe-card img {
+            width: 100%;
+            height: 70%;
+            object-fit: cover;
+            border-radius: 20px 20px 0 0;
+        }
+
+        .card-content {
+            padding: 20px;
+            height: 30%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .card-description {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        .swipe-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        .swipe-btn {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            border: none;
+            font-size: 2rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .swipe-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .btn-dislike {
+            background: #ff6b6b;
+            color: white;
+        }
+
+        .btn-like {
+            background: #51cf66;
+            color: white;
+        }
+
+        .like-overlay, .nope-overlay {
+            position: absolute;
+            top: 50px;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-size: 3rem;
+            font-weight: bold;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        .like-overlay {
+            right: 50px;
+            color: #51cf66;
+            border: 5px solid #51cf66;
+            transform: rotate(20deg);
+        }
+
+        .nope-overlay {
+            left: 50px;
+            color: #ff6b6b;
+            border: 5px solid #ff6b6b;
+            transform: rotate(-20deg);
+        }
+
+        .no-more-cards {
+            text-align: center;
+            padding: 100px 20px;
+            color: white;
+        }
+
+        .no-more-cards h2 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+
+        .match-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .match-content {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 400px;
+            animation: matchPop 0.5s ease;
+        }
+
+        @keyframes matchPop {
+            0% { transform: scale(0); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .match-content h2 {
+            color: #667eea;
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+        }
+
+        .body-part-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 999;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .body-part-content {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .body-part-options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .body-part-btn {
+            padding: 15px;
+            border: 2px solid #667eea;
+            background: white;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1.1rem;
+        }
+
+        .body-part-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="/">👋 HandTinder</a>
+            <div class="d-flex">
+                <a href="{{ url_for('matches') }}" class="btn btn-outline-primary me-2">💬 Matches</a>
+                <a href="{{ url_for('profile') }}" class="btn btn-outline-primary me-2">👤 Profilo</a>
+                <a href="{{ url_for('logout') }}" class="btn btn-outline-danger">Esci</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="swipe-container">
+        <div class="card-stack" id="cardStack">
+            <div class="no-more-cards" id="noMoreCards" style="display: none;">
+                <h2>😊 Non ci sono altre mani al momento</h2>
+                <p>Torna più tardi per vedere nuovi profili!</p>
+                <a href="{{ url_for('profile') }}" class="btn btn-light mt-3">Vai al profilo</a>
+            </div>
+        </div>
+
+        <div class="swipe-buttons">
+            <button class="swipe-btn btn-dislike" onclick="swipe('left')">✕</button>
+            <button class="swipe-btn btn-like" onclick="swipe('right')">♥</button>
+        </div>
+    </div>
+
+    <!-- Modal per la selezione della parte del corpo -->
+    <div class="body-part-modal" id="bodyPartModal">
+        <div class="body-part-content">
+            <h3>Quale parte del corpo ti piace?</h3>
+            <p class="text-muted">Scegli cosa vorresti ricevere in cambio</p>
+            <div class="body-part-options">
+                <button class="body-part-btn" onclick="selectBodyPart('Piedi')">🦶 Piedi</button>
+                <button class="body-part-btn" onclick="selectBodyPart('Gambe')">🦵 Gambe</button>
+                <button class="body-part-btn" onclick="selectBodyPart('Braccia')">💪 Braccia</button>
+                <button class="body-part-btn" onclick="selectBodyPart('Viso')">😊 Viso</button>
+                <button class="body-part-btn" onclick="selectBodyPart('Capelli')">💇 Capelli</button>
+                <button class="body-part-btn" onclick="selectBodyPart('Occhi')">👁️ Occhi</button>
+                <button class="body-part-btn" onclick="selectBodyPart('Sorriso')">😁 Sorriso</button>
+                <button class="body-part-btn" onclick="selectBodyPart('Altro')">✨ Altro</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal per il match -->
+    <div class="match-modal" id="matchModal">
+        <div class="match-content">
+            <h2>🎉 È un Match!</h2>
+            <p id="matchUsername" style="font-size: 1.5rem; color: #667eea;"></p>
+            <p id="matchPreference" style="margin-top: 20px;"></p>
+            <button class="btn btn-primary mt-3" onclick="closeMatchModal()">Continua</button>
+            <a href="{{ url_for('matches') }}" class="btn btn-outline-primary mt-2 d-block">Vedi tutti i match</a>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
