@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HandTinder - Carica la tua mano</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .upload-container {
+            max-width: 600px;
+            margin: 50px auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        .upload-area {
+            border: 3px dashed #667eea;
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .upload-area:hover {
+            background: #f8f9ff;
+            border-color: #764ba2;
+        }
+        .upload-area i {
+            font-size: 3rem;
+            color: #667eea;
+        }
+        .preview-img {
+            max-width: 100%;
+            max-height: 300px;
+            margin-top: 20px;
+            border-radius: 10px;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            padding: 12px;
+        }
+        .btn-secondary {
+            background: #6c757d;
+            border: none;
+            padding: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="upload-container">
+        <h1 class="text-center mb-4">👋 Carica la tua mano</h1>
+        <p class="text-center text-muted mb-4">Mostra al mondo la bellezza delle tue mani!</p>
+
+        {% if error %}
+        <div class="alert alert-danger">{{ error }}</div>
+        {% endif %}
+
+        <form method="POST" enctype="multipart/form-data" id="uploadForm">
+            <div class="upload-area" onclick="document.getElementById('hand_photo').click()">
+                <p class="mb-2">📸</p>
+                <p>Clicca per selezionare una foto</p>
+                <input type="file" class="d-none" id="hand_photo" name="hand_photo" accept="image/*" required onchange="previewImage(this)">
+            </div>
+
+            <div id="preview" class="text-center" style="display: none;">
+                <img id="previewImg" class="preview-img" src="" alt="Preview">
+            </div>
+
+            <div class="mb-3 mt-3">
+                <label for="description" class="form-label">Descrizione (opzionale)</label>
+                <textarea class="form-control" id="description" name="description" rows="2" placeholder="Aggiungi una descrizione..."></textarea>
+            </div>
+
+            <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-primary">Carica e inizia</button>
+                <a href="{{ url_for('swipe') }}" class="btn btn-secondary">Salta per ora</a>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        function previewImage(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('previewImg').src = e.target.result;
+                    document.getElementById('preview').style.display = 'block';
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+    </script>
+</body>
+</html>

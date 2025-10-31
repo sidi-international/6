@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HandTinder - Profilo</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .navbar-brand {
+            font-weight: bold;
+            color: #667eea !important;
+            font-size: 1.5rem;
+        }
+
+        .profile-container {
+            max-width: 800px;
+            margin: 30px auto;
+            padding: 20px;
+        }
+
+        .profile-header {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+        }
+
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            margin: 0 auto 20px;
+        }
+
+        .profile-username {
+            font-size: 2rem;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .photos-section {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+
+        .photos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .photo-card {
+            position: relative;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+
+        .photo-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .photo-description {
+            padding: 10px;
+            background: #f8f9fa;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .upload-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            padding: 12px 30px;
+            color: white;
+            border-radius: 10px;
+            text-decoration: none;
+            display: inline-block;
+            transition: transform 0.3s;
+        }
+
+        .upload-btn:hover {
+            transform: scale(1.05);
+            color: white;
+        }
+
+        .no-photos {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="/">👋 HandTinder</a>
+            <div class="d-flex">
+                <a href="{{ url_for('swipe') }}" class="btn btn-outline-primary me-2">👋 Swipe</a>
+                <a href="{{ url_for('matches') }}" class="btn btn-outline-primary me-2">💬 Matches</a>
+                <a href="{{ url_for('logout') }}" class="btn btn-outline-danger">Esci</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="profile-container">
+        <div class="profile-header">
+            <div class="profile-avatar">👤</div>
+            <h1 class="profile-username">{{ username }}</h1>
+            <a href="{{ url_for('upload_hand') }}" class="upload-btn mt-3">➕ Aggiungi foto mano</a>
+        </div>
+
+        <div class="stats-container">
+            <div class="stat-card">
+                <div class="stat-value">{{ stats.total_swipes }}</div>
+                <div class="stat-label">Swipe totali</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{ stats.likes_given }}</div>
+                <div class="stat-label">Like dati</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{ stats.matches }}</div>
+                <div class="stat-label">Match</div>
+            </div>
+        </div>
+
+        <div class="photos-section">
+            <h2>Le tue foto</h2>
+
+            {% if photos %}
+                <div class="photos-grid">
+                    {% for photo in photos %}
+                    <div class="photo-card">
+                        <img src="{{ url_for('static', filename='uploads/' + photo.photo_path) }}" alt="Hand photo">
+                        {% if photo.description %}
+                        <div class="photo-description">{{ photo.description }}</div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="no-photos">
+                    <p>Non hai ancora caricato foto delle tue mani</p>
+                    <a href="{{ url_for('upload_hand') }}" class="upload-btn">Carica la prima foto</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>
